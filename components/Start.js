@@ -1,5 +1,6 @@
 import React from "react";
 
+// Importing a lot of React Native functionalities!
 import {
   StyleSheet,
   View,
@@ -10,6 +11,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 
+// Importing the default background image from the assets folder
 import BackgroundImage from "../assets/background-image.png";
 
 export default class Start extends React.Component {
@@ -37,7 +39,7 @@ export default class Start extends React.Component {
 
   render() {
     return (
-      //Different components do differents things; View acts as a div from html
+      // Components to create the color arrays, titles and the app's colors
       <View style={styles.container}>
         <ImageBackground
           source={BackgroundImage}
@@ -65,30 +67,56 @@ export default class Start extends React.Component {
               </Text>
             </View>
 
+            {/* All the colors to change the background are here! */}
             <View style={styles.colorArray}>
               <TouchableOpacity
+                accessible={true}
+                accessibilityLabel="red blackground"
+                accessibilityHint="Allows you to add a red background to the chat"
+                accessibilityRole="button"
                 style={styles.color1}
                 onPress={() => this.changeBgColor(this.colors.red)}
               ></TouchableOpacity>
               <TouchableOpacity
+                accessible={true}
+                accessibilityLabel="green blackground"
+                accessibilityHint="Allows you to add a green background to the chat"
+                accessibilityRole="button"
                 style={styles.color2}
                 onPress={() => this.changeBgColor(this.colors.green)}
               ></TouchableOpacity>
               <TouchableOpacity
+                accessible={true}
+                accessibilityLabel="gold blackground"
+                accessibilityHint="Allows you to add a gold background to the chat"
+                accessibilityRole="button"
                 style={styles.color3}
                 onPress={() => this.changeBgColor(this.colors.gold)}
               ></TouchableOpacity>
               <TouchableOpacity
+                accessible={true}
+                accessibilityLabel="pink blackground"
+                accessibilityHint="Allows you to add a pink background to the chat"
+                accessibilityRole="button"
                 style={styles.color4}
                 onPress={() => this.changeBgColor(this.colors.pink)}
               ></TouchableOpacity>
               <TouchableOpacity
+                accessible={true}
+                accessibilityLabel="blue blackground"
+                accessibilityHint="Allows you to add a blue background to the chat"
+                accessibilityRole="button"
                 style={styles.color5}
                 onPress={() => this.changeBgColor(this.colors.blue)}
               ></TouchableOpacity>
             </View>
 
+            {/*This will allow the user to click on a button and be redirected to the chat page */}
             <Pressable
+              accessible={true}
+              accessibilityLabel="Go to the chat page"
+              accessibilityHint="Allows you to go to the chat page"
+              accessibilityRole="button"
               style={styles.button}
               onPress={() =>
                 this.props.navigation.navigate("Chat", {
@@ -106,6 +134,7 @@ export default class Start extends React.Component {
   }
 }
 
+// Creating the app's stylesheet, fixing sizes, centering items, changing colors
 const styles = StyleSheet.create({
   container: {
     flex: 1,
