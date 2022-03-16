@@ -1,4 +1,4 @@
-This project it's all about mobile and navigation between screens! :)
+This project it's all about mobile and navigation between screens!
 
 I will create a chat app, where you can:
 
@@ -20,4 +20,4 @@ time.
 As a user with a visual impairment, I want to use a chat app that is compatible with a screen
 reader so that I can engage with a chat interface.
 
-Excited about this one!
+Excited about this one! :)
