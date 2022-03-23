@@ -1,15 +1,10 @@
 import React from "react";
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
-import {
-  View,
-  Platform,
-  Text,
-  KeyboardAvoidingView,
-  StyleSheet,
-} from "react-native";
+import { View, Platform, KeyboardAvoidingView, StyleSheet } from "react-native";
 import * as firebase from "firebase";
 import "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo from "@react-native-community/netinfo";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDzAxXJWaBdKCmcT2yt0ysZYDukX9b2uTI",
@@ -38,36 +33,6 @@ export default class Chat extends React.Component {
 
     this.referenceChatMessages = firebase.firestore().collection("messages");
   }
-  // Using component did mount to create the initial chat message and adding a bot image!
-  componentDidMount() {
-    let { name } = this.props.route.params;
-    // This will add the name at the top of the screen
-    this.props.navigation.setOptions({ title: name });
-
-    this.unsubscribe = this.referenceChatMessages
-      .orderBy("createdAt", "desc")
-      .onSnapshot(this.onCollectionUpdate);
-
-    this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-      if (!user) {
-        await firebase.auth().signInAnonymously();
-      }
-
-      this.setState({
-        uid: user.uid,
-        messages: [],
-        user: {
-          _id: user.uid,
-          name: name,
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      });
-      this.refMsgsUser = firebase
-        .firestore()
-        .collection("messages")
-        .where("uid", "==", this.state.uid);
-    });
-  }
 
   onCollectionUpdate = (querySnapshot) => {
     const messages = [];
@@ -91,6 +56,86 @@ export default class Chat extends React.Component {
     });
   };
 
+  getMessages = async () => {
+    let messages = "";
+    try {
+      messages = (await AsyncStorage.getItem("messages")) || [];
+      this.setState({
+        messages: JSON.parse(messages),
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  async deleteMessages() {
+    try {
+      await AsyncStorage.removeItem("messages");
+      this.setState({
+        messages: [],
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  async saveMessages() {
+    try {
+      await AsyncStorage.setItem(
+        "messages",
+        JSON.stringify(this.state.messages)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  // Using component did mount to create the initial chat message and adding a bot image!
+  componentDidMount() {
+    let { name } = this.props.route.params;
+    // This will add the user name at the top of the screen
+    this.props.navigation.setOptions({ title: name });
+
+    NetInfo.fetch().then((connection) => {
+      if (connection.isConnected) {
+        this.setState({ isConnected: true });
+        console.log("online");
+        // Will check for collection updates
+        this.unsubscribe = this.referenceChatMessages
+          .orderBy("createdAt", "desc")
+          .onSnapshot(this.onCollectionUpdate);
+
+        this.authUnsubscribe = firebase
+          .auth()
+          .onAuthStateChanged(async (user) => {
+            if (!user) {
+              await firebase.auth().signInAnonymously();
+            }
+
+            this.setState({
+              uid: user.uid,
+              messages: [],
+              user: {
+                _id: user.uid,
+                name: name,
+                avatar: "https://placeimg.com/140/140/any",
+              },
+            });
+            this.refMsgsUser = firebase
+              .firestore()
+              .collection("messages")
+              .where("uid", "==", this.state.uid);
+          });
+        this.saveMessages();
+      } else {
+        // When the user is offline!
+        this.setState({ isConnected: false });
+        console.log("offline");
+        this.getMessages();
+      }
+    });
+  }
+
   componentWillUnmount() {
     //unsubscribe from collection updates
     this.authUnsubscribe();
@@ -109,29 +154,6 @@ export default class Chat extends React.Component {
     });
   }
 
-  async deleteMessages() {
-    try {
-      await AsyncStorage.removeItem("messages");
-      this.setState({
-        messages: [],
-      });
-    } catch (error) {
-      console.log(error.message);
-    }
-  }
-
-  getMessages = async () => {
-    let messages = "";
-    try {
-      messages = (await AsyncStorage.getItem("messages")) || [];
-      this.setState({
-        messages: JSON.parse(messages),
-      });
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
   onSend(messages = []) {
     this.setState(
       (previousState) => ({
@@ -139,6 +161,7 @@ export default class Chat extends React.Component {
       }),
       () => {
         this.addMessages();
+        this.saveMessages();
       }
     );
   }
@@ -148,10 +171,22 @@ export default class Chat extends React.Component {
       <Bubble
         {...props}
         wrapperStyle={{
-          right: { backgroundColor: "#59c3c3" },
+          right: {
+            backgroundColor: "#dbb35a",
+          },
+          left: {
+            backgroundColor: "white",
+          },
         }}
       />
     );
+  }
+
+  renderInputToolbar(props) {
+    if (this.state.isConnected == false) {
+    } else {
+      return <InputToolbar {...props} />;
+    }
   }
 
   // The view elements look like CSS but they are from React Native!
@@ -167,6 +202,7 @@ export default class Chat extends React.Component {
       >
         <GiftedChat
           renderBubble={this.renderBubble.bind(this)}
+          renderInputToolbar={this.renderInputToolbar.bind(this)}
           messages={this.state.messages}
           user={this.state.user}
           onSend={(messages) => this.onSend(messages)}
