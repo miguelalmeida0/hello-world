@@ -15,7 +15,7 @@ export default class CustomActions extends React.Component {
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
         }).catch((err) => console.log(err));
         if (!result.cancelled) {
-          const imageUrl = await this.uploadImageFetch(result.uri);
+          const imageUrl = await this.uploadImage(result.uri);
           this.props.onSend({ image: imageUrl });
         }
       }
@@ -80,7 +80,7 @@ export default class CustomActions extends React.Component {
     }
   };
 
-  uploadImageFetch = async (uri) => {
+  uploadImage = async (uri) => {
     const blob = await new Promise((res, rej) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = () => res(xhr.response);
@@ -96,7 +96,7 @@ export default class CustomActions extends React.Component {
     const imageNameBefore = uri.split("/");
     const imageName = imageNameBefore[imageNameBefore.length - 1];
 
-    const ref = ref(storage, `images/${imageName}`);
+    const ref = firebase.storage().ref().child(`images/${imageName}`);
 
     const snapshot = await ref.put(blob);
 
