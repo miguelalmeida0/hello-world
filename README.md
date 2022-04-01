@@ -27,7 +27,6 @@ As a user with a visual impairment, I want to use a chat app that is compatible 
 reader so that I can engage with a chat interface.
 
 How to use this Chat App.
-Necessary:
 
 Node.js & npm
 React Native
