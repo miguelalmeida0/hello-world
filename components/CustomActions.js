@@ -4,23 +4,27 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as Permissions from "expo-permissions";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
+import * as firebase from "firebase";
 import "firebase/firestore";
 
 export default class CustomActions extends React.Component {
   pickImage = async () => {
-    const permission = await ImagePicker.getMediaLibraryPermissionsAsync();
+    /// Permission to access library
+    const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
     try {
-      if (permission) {
+      if (status === "granted") {
         let result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        }).catch((err) => console.log(err));
+        }).catch((error) => {
+          console.error(error);
+        });
         if (!result.cancelled) {
           const imageUrl = await this.uploadImage(result.uri);
           this.props.onSend({ image: imageUrl });
         }
       }
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -28,7 +32,7 @@ export default class CustomActions extends React.Component {
     //permission to access camera and library
     const { status } = await Permissions.askAsync(
       Permissions.CAMERA,
-      Permissions.CAMERA_ROLL
+      Permissions.MEDIA_LIBRARY_WRITE_ONLY
     );
     try {
       if (status === "granted") {
