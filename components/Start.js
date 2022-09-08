@@ -12,7 +12,7 @@ import {
 } from "react-native";
 
 // Importing the default background image from the assets folder
-import BackgroundImage from "../assets/background-image.png";
+import BackgroundImage from "../assets/background-image.jpg";
 
 export default class Start extends React.Component {
   constructor(props) {
